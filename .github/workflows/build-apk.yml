@@ -70,11 +70,29 @@ jobs:
           ./gradlew assembleRelease
 
 
+      - name: Find Generated APK
+        run: |
+          echo "Generated APK files:"
+          find android/app/build/outputs/apk/release -type f -name "*.apk" -print
+
+
       - name: Rename APK
         run: |
           mkdir -p release
-          cp android/app/build/outputs/apk/release/app-release.apk \
-             release/Diwan-Alqabila-release.apk
+
+          APK_FILE=$(find android/app/build/outputs/apk/release -type f -name "*.apk" | head -n 1)
+
+          if [ -z "$APK_FILE" ]; then
+            echo "ERROR: No APK file was generated."
+            exit 1
+          fi
+
+          echo "Using APK: $APK_FILE"
+
+          cp "$APK_FILE" "release/Diwan-Alqabila-release.apk"
+
+          echo "Final APK:"
+          ls -lh release/Diwan-Alqabila-release.apk
 
 
       - name: Upload Release APK
